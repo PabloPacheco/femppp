@@ -545,115 +545,6 @@ class FEMProblem:
         plt.gca().set_aspect("equal")
         plt.tight_layout()
         plt.show()
-    
-    def plot_mesh(
-        self,
-        show_nodes=True,
-        show_node_ids=True,
-        show_elements=True,
-        show_element_ids=False,
-        element_ids_size=9,
-        node_ids_size=9,
-        figure_size=(6, 6),
-        line_color="k",
-        line_width=1.0,
-        node_color="r",
-        node_size=30,
-        ax=None
-    ):
-        """
-        Plot FEM triangular mesh.
-    
-        Parameters
-        ----------
-        show_nodes : bool
-        show_node_ids : bool
-        show_elements : bool
-        show_element_ids : bool
-        """
-    
-        if ax is None:
-            fig, ax = plt.subplots(figsize=figure_size)
-    
-        # --------------------------------------------------
-        # Reconstruir coordenadas globales de nodos
-        # --------------------------------------------------
-        # Extraemos coordenadas desde los elementos
-        # (asumimos que todos comparten los mismos nodos globales)
-    
-        coords = {}
-    
-        for elem in self.elements:
-            for local_i, global_i in enumerate(elem.node_ids):
-                if global_i not in coords:
-                    coords[global_i] = elem.coords[local_i]
-    
-        # Convertir a arreglo ordenado
-        node_ids_sorted = sorted(coords.keys())
-        points = np.array([coords[i] for i in node_ids_sorted])
-    
-        id_map = {nid: i for i, nid in enumerate(node_ids_sorted)}
-    
-        # --------------------------------------------------
-        # Plot elementos triangulares
-        # --------------------------------------------------
-        if show_elements:
-            for e, elem in enumerate(self.elements):
-    
-                tri_nodes = [id_map[nid] for nid in elem.node_ids]
-                tri_coords = points[tri_nodes]
-    
-                # cerrar triángulo
-                x = np.append(tri_coords[:, 0], tri_coords[0, 0])
-                y = np.append(tri_coords[:, 1], tri_coords[0, 1])
-    
-                ax.plot(x, y, color=line_color, linewidth=line_width)
-    
-                if show_element_ids:
-                    centroid = np.mean(tri_coords, axis=0)
-                    ax.text(
-                        centroid[0],
-                        centroid[1],
-                        f"{e}",
-                        color=line_color,
-                        fontsize=element_ids_size,
-                        ha="center",
-                        va="center"
-                    )
-    
-        # --------------------------------------------------
-        # Plot nodos
-        # --------------------------------------------------
-        if show_nodes:
-            ax.scatter(
-                points[:, 0],
-                points[:, 1],
-                c=node_color,
-                s=node_size,
-                zorder=3
-            )
-    
-            if show_node_ids:
-                for i, (x, y) in zip(node_ids_sorted, points):
-                    ax.text(
-                        x,
-                        y,
-                        f"{i}",
-                        color=node_color,
-                        fontsize=node_ids_size,
-                        ha="right",
-                        va="bottom"
-                    )
-    
-        # --------------------------------------------------
-        # Formato
-        # --------------------------------------------------
-        ax.set_aspect("equal")
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.grid(False)
-    
-        plt.show()
 
     
 
@@ -974,7 +865,6 @@ def plot_deformed_contour(points, simplices, ux, uy,
     plt.show()
 
 
-
 def read_msh_extract_data(filename, gmsh):
 
     gmsh.initialize()
@@ -1051,6 +941,4 @@ def read_msh_extract_data(filename, gmsh):
     gmsh.finalize()
 
     return nodes, triangles, boundary_nodes, boundary_edges
-
-
 
